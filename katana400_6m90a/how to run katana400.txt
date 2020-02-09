@@ -1,0 +1,20 @@
+For running katana_6m90a
+in new terminal:
+
+bash katana400simstart.sh
+
+This will:
+roslaunch katana400_6m90a katana400_gazebo.launch
+
+and 
+
+python katanapushingobject.py
+_
+Notes: only 2 files needed:
+katana400_gazebo.launch
+katana400_control.launch
+
+other python file:
+python katana_pick_and_place.py ## is for moving +gripper
+
+python ask_motor_pos.py ##is for getting all motor current position

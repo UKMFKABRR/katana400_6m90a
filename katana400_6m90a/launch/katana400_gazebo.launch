@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- We resume the logic in gazebo_ros package empty_world.launch, -->
+  <!-- changing only the name of the world to be launched -->
+
+<include file="$(find katana400_6m90a)/launch/katana400_control.launch" />
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+   <!--<arg name="world_name" value="worlds/empty.world"/> -->
+ <arg name="world_name" value="$(find katana400_gazebo)/worlds/smart_grasping_new.world"/> 
+    <arg name="paused" value="false"/>
+  
+
+  </include>
+
+  <!-- Load the URDF into the ROS Parameter Server -->
+  <!-- send katana urdf to param server -->
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find katana400_6m90a)/urdf/katana_400_6m90G.urdf.xacro'" />
+
+   <!-- Spawn into Gazebo -->
+
+
+  <node name="spawn_katana_model" pkg="gazebo_ros" type="spawn_model" args="x 0.2 -y -0.0 -z 0.01 -urdf -param robot_description -model katana_400_6m90G" respawn="false" output="screen"/>
+
+  <!-- Spawn coke can -->
+  <include file="$(find katana400_6m90a)/launch/coke_can.launch">
+
+  </include>
+
+
+  <!-- Spawn objects -->
+  <include file="$(find katana400_6m90a)/launch/cylinder_object.launch">
+
+  </include>
+
+
+</launch>
+

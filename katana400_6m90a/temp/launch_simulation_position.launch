@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <arg name="gui" default="true"/>
+  <arg name="start_gazebo" default="true"/>
+  <arg name="limited" default="false"/>
+  <arg name="paused" default="false"/>
+  <arg name="gzweb" default="false"/>
+  <arg name="verbose" default="false"/>
+
+  <group if="$(arg start_gazebo)">
+    <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+      <arg name="world_name" value="$(find katana400_gazebo)/worlds/smart_grasping_new.world"/> 
+      <arg name="paused" value="$(arg paused)"/>
+      <arg name="gui" value="$(arg gui)"/>
+      <arg name="verbose" value="$(arg verbose)"/>
+      
+      <arg name="physics" value="ode"/>
+      <env name="GAZEBO_MODEL_PATH" value="~/.gazebo/models:/workspace/src:/workspace/src/universal_robot:${GAZEBO_MODEL_PATH}"/>
+    </include>
+  </group>
+
+
+ <!-- send robot urdf to param server as 'robot_description' -->
+ <param name="robot_description" command="$(find xacro)/xacro '$(find katana400_description)/urdf/katana_400_6m90G_pos.urdf.xacro'" /> 
+  <!-- 
+<include file="$(find katana400_description)/launch/robot_upload.launch">
+    <arg name="limited" value="$(arg limited)"/>
+  </include>
+-->
+
+  <!-- push robot_description to factory and spawn robot in gazebo -->
+
+
+<node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model katana_400_6m90G" respawn="false" output="screen" />
+
+ <node pkg="tf2_ros" type="static_transform_publisher" name="world_to_arm_base" args="0 -1.0 1 0 0 0 world katana_internal_controlbox_link 100" />
+
+ <node pkg="tf2_ros" type="static_transform_publisher" name="kinect_link_broadcaster" args="1.64687 -1.56858 1.5046 0 -0.0001 2.17579 world kinect_link" />
+
+
+ <!--
+  <group if="$(arg gzweb)">
+    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model"
+      args="-urdf -model katana_400_6m90G -file /tmp/katana_400_6m90G.gazebo.urdf -package_to_model" respawn="false" output="screen" >
+      <param name="dummy_to_generate_gazebo_urdf_file"
+        command="rosrun xacro xacro.py -o /tmp/katana_400_6m90G.gazebo.urdf '$(find katana400_description)/urdf/katana_400_6m90G_pos.urdf.xacro'" />
+      <param name="dummy_to_convert_package_to_model"
+        command="sed -i s@package://@model://@g /tmp/katana_400_6m90G.gazebo.urdf" />
+    </node>
+  </group>
+
+-->
+
+ <!-- start gazebo control for katana400 June10-2019-->
+
+  <rosparam file="$(find katana400_gazebo)/config/katana_arm_controller_latest.yaml" command="load"/>
+
+  <node name="katana_arm_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn katana_arm_controller" respawn="false" output="screen"/>
+  <param name="katana_arm_controller/allow_partial_joints_goal" value="true"/>
+
+
+
+ <!-- start gazebo control for gripper -->
+  <rosparam command="load" file="$(find katana400_gazebo)/config/katana_gripper_controller_latest.yaml"/>
+
+  <param name="katana/allow_partial_joints_goal" value="true"/>
+<!-- <node name="spawn_katana_gripper_controller" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="spawn katana" /> -->
+<node name="spawn_katana_gripper_controller" pkg="controller_manager" type="controller_manager" args="spawn katana" respawn="false" output="screen"/>
+
+
+
+
+
+  <!-- load the controllers that come up when started-->
+
+  <!-- load robot_state_publisher etc. -->
+ <include file="$(find katana400_gazebo)/launch/controller_utils.launch"/> 
+
+
+
+
+   <!--
+  <param name="katana_arm_controller/allow_partial_joints_goal" value="true"/>
+
+
+  <param name="katana/allow_partial_joints_goal" value="true"/>
+-->
+<!-- <node name="spawn_katana_gripper_controller" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="spawn katana" /> -->
+
+
+</launch>

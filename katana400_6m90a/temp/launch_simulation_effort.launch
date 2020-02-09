@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <arg name="gui" default="true"/>
+  <arg name="limited" default="true"/>
+  <arg name="paused" default="false"/>
+
+
+
+ <!-- startup simulated world -->
+
+    <include file="$(find gazebo_ros)/launch/empty_world.launch"> 
+      <arg name="world_name" default="worlds/empty.world"/>
+
+      <!--<arg name="world_name" value="$(find katana400_gazebo)/worlds/smart_grasping_new.world"/> -->
+      <arg name="paused" value="$(arg paused)"/>
+      <arg name="gui" value="$(arg gui)"/>
+
+<!--   <env name="GAZEBO_MODEL_PATH" value="~/.gazebo/models:/workspace/src:/workspace/src/universal_robot:${GAZEBO_MODEL_PATH}"/>  -->
+    </include>
+
+
+ <param if="$(arg limited)" name="robot_description" command="$(find xacro)/xacro '$(find katana400_description)/urdf/katana_400_6m90G.urdf.xacro'" /> 
+
+  <!-- push robot_description to factory and spawn robot in gazebo -->
+
+ <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model katana_400_6m90G" respawn="false" output="screen" />
+
+<node name="robot_base_broadcaster" pkg="tf2_ros" type="static_transform_publisher" args="0 -1.0 1 0 0 0 world katana_internal_controlbox_link 100" />
+
+<node name="kinect_link_broadcaster" pkg="tf2_ros" type="static_transform_publisher"  args="1.64687 -1.56858 1.5046 0 -0.0001 2.17579 world kinect_link" />
+
+  <!-- joint_state_controller -->
+  <rosparam file="$(find katana400_gazebo)/controller/joint_state_controller.yaml" command="load"/>
+
+  <node name="joint_state_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn joint_state_controller" respawn="false" output="screen"/>
+
+
+
+
+  <!-- load the controllers for katana-400-6m90G         -->
+<rosparam file="$(find katana400_6m90a)/config/katana_arm_controller_effort.yaml" command="load"/>
+
+
+<node name="katana_400_6m90G_spawner" pkg="controller_manager" type="spawner" ns="/"   respawn="false" output="screen"
+args="--namespace=
+/katana_400_6m90G/katana_motor1_pan_joint_position_controller
+
+/katana_400_6m90G/katana_motor2_lift_joint_position_controller
+/katana_400_6m90G/katana_motor3_lift_joint_position_controller
+/katana_400_6m90G/katana_motor4_lift_joint_position_controller
+/katana_400_6m90G/katana_motor5_wrist_roll_joint_position_controller
+"
+
+/>
+
+
+  <!-- load the controllers for katana-gripper         -->
+  <rosparam file="$(find katana400_gazebo)/config/katana_gripper_controller_effort.yaml" command="load"/>
+
+  <node name="katana_gripper_controller_spwaner" pkg="controller_manager" type="spawner" ns="/" args="--shutdown-timeout=100 --timeout=360.0 katana" respawn="false" output="screen"/>
+
+<param name="katana/allow_partial_joints_goal" value="true"/>
+
+  <!-- Robot state publisher -->
+
+  <!-- convert joint states to TF transforms for rviz, etc -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+    respawn="false" output="screen">
+    <remap from="/joint_states" to="/joint_states" />
+  </node>
+
+
+  <!-- Fake Calibration -->
+  <node pkg="rostopic" type="rostopic" name="fake_joint_calibration"
+        args="pub /calibrated std_msgs/Bool true" />
+
+
+</launch>

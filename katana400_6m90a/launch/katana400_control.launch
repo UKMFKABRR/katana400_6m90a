@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+  <!-- load the controllers for katana-400-6m90G         -->
+<rosparam file="$(find katana400_6m90a)/config/katana_arm_controller_effort.yaml" command="load" />
+
+
+<node name="katana_400_6m90G_effort_controller" pkg="controller_manager" type="spawner" ns="/katana_400_6m90G"   respawn="false" output="screen"
+args="/katana_400_6m90G/joint_state_controller 
+ /katana_400_6m90G/katana_motor1_pan_joint_position_controller
+ /katana_400_6m90G/katana_motor2_lift_joint_position_controller
+ /katana_400_6m90G/katana_motor3_lift_joint_position_controller
+ /katana_400_6m90G/katana_motor4_lift_joint_position_controller
+ /katana_400_6m90G/katana_motor5_wrist_roll_joint_position_controller"
+
+/>
+
+ 
+  <!-- load the controllers for katana-gripper         -->
+
+   <!-- <node name="spawn_katana_gripper_effort_controller" pkg="gazebo_ros" type="spawn_model" args="-urdf -param robot_description -model katana" respawn="false" output="screen"/> -->
+  <!-- <rosparam file="$(find katana400_6m90a)/config/katana_gripper_controller.yaml" command="load"/> -->
+  <!--<rosparam file="$(find katana400_6m90a)/config/gazebo_controller.yaml" command="load" />--> 
+ <!--<node name="spawn_katana_gripper_effort_controller" pkg="controller_manager" type="spawner" ns="/katana_400_6m90G" respawn="false" output="screen" args="katana_gripper" /> --> 
+
+
+
+  <!-- start this controller -->
+ <!--
+ <rosparam file="$(find katana_arm_gazebo)/config/450_katana_arm_controllers.yaml" command="load"/>
+  <node name="arm_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn katana_arm_controller" respawn="false" output="screen"/>
+-->
+  <!-- load other controllers -->
+ <!--
+  <node name="ros_control_controller_manager" pkg="controller_manager" type="controller_manager" respawn="false" output="screen" args="load joint_group_position_controller" />
+-->
+<rosparam command="load" file="$(find katana_arm_gazebo)/config/joint_state_controller.yaml" />
+<rosparam command="load" file="$(find katana_arm_gazebo)/config/katana_gripper_controller.yaml" />
+
+ <!--
+<rosparam command="load" file="$(find katana400_6m90a)/config/katana_gripper_controller.yaml" />
+<rosparam command="load" file="$(find katana_arm_gazebo)/config/joint_state_controller.yaml" />
+
+
+<rosparam file="$(find katana400_6m90a)/config/arm_gripper_controller.yaml" command="load" />
+<node name="spawn_katana_gripper_effort_controller" pkg="controller_manager" type="spawner" ns="/katana_gripper" respawn="false" output="screen" 
+args="/katana_400_6m90G/katana_l_finger_joint_position_controller katana_r_finger_joint_position_controller" />
+
+-->
+  <!-- Robot state publisher -->
+
+  <!-- convert joint states to TF transforms for rviz, etc -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+    respawn="false" output="screen">
+    <remap from="/joint_states" to="/joint_states" />
+  </node>
+
+
+</launch>

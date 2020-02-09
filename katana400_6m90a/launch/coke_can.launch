@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+
+ <param name="coke_can_description" command="$(find xacro)/xacro --inorder $(find katana400_6m90a)/urdf/coke_can.urdf" />
+
+  <!-- push cylinder_object_description to factory and spawn in gazebo -->
+  <node name="spawn_coke" pkg="gazebo_ros" type="spawn_model" args="-urdf -param coke_can_description -x 0.0 -y 0.35 -z 0.65 -model coke_can" respawn="false" output="screen" /> 
+
+</launch>
+

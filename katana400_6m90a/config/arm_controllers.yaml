@@ -1,0 +1,3 @@
+katana_gripper_joints:
+  - katana_r_finger_joint
+  - katana_l_finger_joint

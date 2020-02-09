@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <!--start gazebo_ros -->
+  <arg name="sim" default="true" />
+  <arg name="limited" default="true"/>
+  <arg name="debug" default="false" />
+  <arg name="gui" default="true"/>
+  <arg name="config" default="true"/>
+  <arg name="use_gui" default="true" />
+
+  <!-- Remap follow_joint_trajectory -->
+  <remap if="$(arg sim)" from="/katana_450_6m90G/controller/trajectory/katana_arm_controller" 
+to="/katana_400_6m90G/katana_motor1_pan_joint_position_controller/follow_joint_trajectory"/>
+
+  <remap if="$(arg sim)" from="/katana_motor2_lift_joint_position_controller/follow_joint_trajectory" 
+to="/katana_400_6m90G/katana_motor2_lift_joint_position_controller/follow_joint_trajectory"/>
+
+  <remap if="$(arg sim)" from="/katana_motor3_lift_joint_position_controller/follow_joint_trajectory" 
+to="/katana_400_6m90G/katana_motor3_lift_joint_position_controller/follow_joint_trajectory"/>
+
+  <remap if="$(arg sim)" from="/katana_motor4_lift_joint_position_controller/follow_joint_trajectory" to="/katana_400_6m90G/katana_motor4_lift_joint_position_controller/follow_joint_trajectory"/>
+
+  <remap if="$(arg sim)" from="/katana_motor5_wrist_roll_joint_position_controller/follow_joint_trajectory" to="/katana_400_6m90G/katana_motor5_wrist_roll_joint_position_controller/follow_joint_trajectory"/>
+
+
+  <remap if="$(arg sim)" from="/gripper_controller/follow_joint_trajectory" to="/gripper_gazebo_controller/follow_joint_trajectory"/>
+
+</launch>

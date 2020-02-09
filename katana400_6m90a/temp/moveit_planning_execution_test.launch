@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <!--start gazebo_ros -->
+  <arg name="sim" default="true" />
+  <arg name="limited" default="true"/>
+  <arg name="debug" default="false" />
+  <arg name="gui" default="true"/>
+  <arg name="config" default="true"/>
+  <arg name="use_gui" default="true" />
+
+  <rosparam file="$(find katana400_moveit_config)/config/joint_names.yaml"/>
+
+<group if="$(arg sim)">
+  <!-- run the robot simulator and action interface nodes -->
+
+       <include file="$(find katana400_gazebo)/launch/launch_simulation_effort_test.launch">
+	<arg name="limited" value="$(arg limited)"/>
+    </include>
+ </group>
+
+
+  <!-- Remap follow_joint_trajectory -->
+<group if="$(arg sim)">
+
+       <!-- <include file="$(find katana400_control)/launch/controller_remapping.launch">
+	<arg name="limited" value="$(arg limited)"/>
+    </include> -->
+ </group>
+
+
+  <include file="$(find katana400_moveit_config)/launch/move_group_new.launch">
+    <arg name="debug" value="$(arg debug)"/>
+  </include>
+
+
+  <group if="$(arg gui)">
+
+  <!-- Run Rviz and load the default config to see the state of the move_group node -->
+  <include file="$(find katana400_moveit_config)/launch/moveit_rviz.launch">
+    <arg name="config" value="$(arg config)"/>
+    <arg name="debug" value="$(arg debug)"/>
+  </include>
+ </group>
+</launch>
